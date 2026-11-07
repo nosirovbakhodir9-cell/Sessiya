@@ -45,10 +45,10 @@ footer{padding:12px 16px 16px}
 .rv i{display:block;color:var(--ok);font-style:normal;margin-top:6px}
 .hide{display:none}
 .ico{flex:none;width:44px;height:44px;border-radius:12px;background:var(--head);display:grid;place-items:center;font-size:24px}
-.chip .bad{color:var(--bad)}.best.y{color:var(--warn)}.best.r{color:var(--bad)}#back{flex:none;width:44px;height:44px;padding:0 0 3px;border-radius:50%;background:var(--card);border:2px solid var(--pri);color:var(--pri);font-size:26px;line-height:1;display:grid;place-items:center}.best{margin-left:auto;padding-left:8px;color:var(--ok);font-weight:700;font-size:28px;line-height:1}.sub{display:block;color:var(--muted);font-size:13px;margin-top:3px}.num{border-color:var(--pri);color:var(--pri);font-weight:600}
+.chip .bad{color:var(--bad)}.best.y{color:var(--warn)}.best.r{color:var(--bad)}#back{flex:none;width:42px;height:42px;padding:0;border-radius:50%;background:var(--pri);border:0;color:#fff;display:grid;place-items:center;box-shadow:0 3px 10px rgba(0,0,0,.28);transition:transform .12s,box-shadow .12s}#back svg{width:22px;height:22px;display:block}#back:active{transform:scale(.9);box-shadow:0 1px 4px rgba(0,0,0,.3)}.best{margin-left:auto;flex:none;width:56px;height:56px;border-radius:50%;display:grid;place-items:center;color:var(--ok);background:conic-gradient(currentColor calc(var(--p)*1%),var(--line) 0)}.best b{width:44px;height:44px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-size:14px;font-weight:700;letter-spacing:-.3px}.sub{display:block;color:var(--muted);font-size:13px;margin-top:3px}.num{border-color:var(--pri);color:var(--pri);font-weight:600}
 </style></head><body>
 <div class="app">
-<header><button class="ib" id="back" aria-label="Orqaga">←</button><h1 id="ttl">Soliqlar bo‘yicha testlar</h1><button class="ib" id="th" aria-label="Tun rejimi">☾</button></header>
+<header><button class="ib" id="back" aria-label="Orqaga"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><h1 id="ttl">Soliqlar bo‘yicha testlar</h1><button class="ib" id="th" aria-label="Tun rejimi">☾</button></header>
 <div id="bar" class="bar hide"><div class="chip"><span class="star">★</span><b id="sc">0</b></div><div class="chip">Xato: <b id="wr" style="color:var(--bad)">0</b></div><div class="chip">Savol: <b id="no"></b></div></div>
 <main id="main"></main>
 <footer id="ft"><button class="pri" id="nx"></button></footer>
@@ -76,11 +76,11 @@ let canHist=true;const push=l=>{try{history.pushState({l},"")}catch(e){canHist=f
 const goBack=()=>{if(canHist)history.back();else if(mode==="parts")home();else parts()};
 $("#back").onclick=()=>{if(mode==="home")return;goBack()};
 function home(){clearTimeout(to);mode="home";$("#bar").classList.add("hide");$("#ft").classList.add("hide");$("#ttl").textContent="Soliqlar bo‘yicha testlar";
-$("#main").innerHTML='<h2 style="margin:4px 0 16px">Bo‘limlar <small class="muted" style="font-size:11px;font-weight:400">v6</small></h2>'+SECS.map((s,k)=>'<button class="opt" data-k="'+k+'"><span class="ico">'+s.i+'</span><span>'+esc(s.n)+'<span class="sub">'+s.b.length+' ta test · '+partsOf(s.b).length+' ta qism</span></span></button>').join("");
+$("#main").innerHTML='<h2 style="margin:4px 0 16px">Bo‘limlar <small class="muted" style="font-size:11px;font-weight:400">v8</small></h2>'+SECS.map((s,k)=>'<button class="opt" data-k="'+k+'"><span class="ico">'+s.i+'</span><span>'+esc(s.n)+'<span class="sub">'+s.b.length+' ta test · '+partsOf(s.b).length+' ta qism</span></span></button>').join("");
 document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{sec=+b.dataset.k;parts();push(1)})}
 function parts(){clearTimeout(to);mode="parts";const S=SECS[sec],P=partsOf(S.b);$("#bar").classList.add("hide");$("#ft").classList.add("hide");$("#ttl").textContent=S.n;
 $("#main").innerHTML='<h2 style="margin:4px 0">'+esc(S.n)+'</h2><p class="muted" style="margin:0 0 16px">'+S.b.length+' ta test · '+P.length+' ta qism</p>'+
-P.map((p,k)=>'<button class="opt" data-k="'+k+'"><span class="dot num">'+(k+1)+'</span><span>'+(k+1)+'-qism<span class="sub">'+(p[0]+1)+'–'+p[1]+'-savollar · '+(p[1]-p[0])+' ta test</span></span>'+(best[sec+"-"+k]?'<span class="best '+(best[sec+"-"+k].p>=90?'g':best[sec+"-"+k].p>=70?'y':'r')+'">'+best[sec+"-"+k].p+'%</span>':'')+'</button>').join("");
+P.map((p,k)=>'<button class="opt" data-k="'+k+'"><span class="dot num">'+(k+1)+'</span><span>'+(k+1)+'-qism<span class="sub">'+(p[0]+1)+'–'+p[1]+'-savollar · '+(p[1]-p[0])+' ta test</span></span>'+(best[sec+"-"+k]?'<span class="best '+(best[sec+"-"+k].p>=90?'g':best[sec+"-"+k].p>=70?'y':'r')+'" style="--p:'+best[sec+"-"+k].p+'"><b>'+best[sec+"-"+k].p+'%</b></span>':'')+'</button>').join("");
 $("#main").scrollTop=0;document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>start(+b.dataset.k))}
 function start(k){if(mode==="parts")push(2);cur=k;const S=SECS[sec],p=partsOf(S.b)[k];qs=shuffle(S.b.slice(p[0],p[1])).map(q=>{const o=q.o.map((t,j)=>({t,c:j===q.c}));return{q:q.q,o:shuffle(o.filter(x=>!PIN.test(x.t))).concat(o.filter(x=>PIN.test(x.t)))}});
 i=0;score=0;wrong=[];mode="quiz";$("#ttl").textContent=S.n+" · "+(k+1)+"-qism";$("#bar").classList.remove("hide");$("#ft").classList.remove("hide");show()}
