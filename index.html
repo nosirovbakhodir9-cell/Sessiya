@@ -72,15 +72,17 @@ function setTheme(t){document.documentElement.setAttribute("data-theme",t);$("#t
 try{const t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}
 $("#th").textContent=eff()==="dark"?"☀":"☾";
 $("#th").onclick=()=>setTheme(eff()==="dark"?"light":"dark");
-$("#back").onclick=()=>{if(mode==="home")return;if(mode==="parts")home();else parts()};
+let canHist=true;const push=l=>{try{history.pushState({l},"")}catch(e){canHist=false}};
+const goBack=()=>{if(canHist)history.back();else if(mode==="parts")home();else parts()};
+$("#back").onclick=()=>{if(mode==="home")return;goBack()};
 function home(){clearTimeout(to);mode="home";$("#bar").classList.add("hide");$("#ft").classList.add("hide");$("#ttl").textContent="Soliqlar bo‘yicha testlar";
 $("#main").innerHTML='<h2 style="margin:4px 0 16px">Bo‘limlar</h2>'+SECS.map((s,k)=>'<button class="opt" data-k="'+k+'"><span class="ico">'+s.i+'</span><span>'+esc(s.n)+'<span class="sub">'+s.b.length+' ta test · '+partsOf(s.b).length+' ta qism</span></span></button>').join("");
-document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{sec=+b.dataset.k;parts()})}
+document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{sec=+b.dataset.k;parts();push(1)})}
 function parts(){clearTimeout(to);mode="parts";const S=SECS[sec],P=partsOf(S.b);$("#bar").classList.add("hide");$("#ft").classList.add("hide");$("#ttl").textContent=S.n;
 $("#main").innerHTML='<h2 style="margin:4px 0">'+esc(S.n)+'</h2><p class="muted" style="margin:0 0 16px">'+S.b.length+' ta test · '+P.length+' ta qism</p>'+
 P.map((p,k)=>'<button class="opt" data-k="'+k+'"><span class="dot num">'+(k+1)+'</span><span>'+(k+1)+'-qism<span class="sub">'+(p[0]+1)+'–'+p[1]+'-savollar · '+(p[1]-p[0])+' ta test</span></span>'+(best[sec+"-"+k]?'<span class="best '+(best[sec+"-"+k].p>=90?'g':best[sec+"-"+k].p>=70?'y':'r')+'">'+best[sec+"-"+k].p+'%</span>':'')+'</button>').join("");
 $("#main").scrollTop=0;document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>start(+b.dataset.k))}
-function start(k){cur=k;const S=SECS[sec],p=partsOf(S.b)[k];qs=S.b.slice(p[0],p[1]).map(q=>{const o=q.o.map((t,j)=>({t,c:j===q.c}));return{q:q.q,o:shuffle(o.filter(x=>!PIN.test(x.t))).concat(o.filter(x=>PIN.test(x.t)))}});
+function start(k){if(mode==="parts")push(2);cur=k;const S=SECS[sec],p=partsOf(S.b)[k];qs=shuffle(S.b.slice(p[0],p[1])).map(q=>{const o=q.o.map((t,j)=>({t,c:j===q.c}));return{q:q.q,o:shuffle(o.filter(x=>!PIN.test(x.t))).concat(o.filter(x=>PIN.test(x.t)))}});
 i=0;score=0;wrong=[];mode="quiz";$("#ttl").textContent=S.n+" · "+(k+1)+"-qism";$("#bar").classList.remove("hide");$("#ft").classList.remove("hide");show()}
 function show(){done=false;const q=qs[i];$("#sc").textContent=score;$("#wr").textContent=wrong.length;$("#no").textContent=(i+1)+"/"+qs.length;
 $("#main").innerHTML='<p class="q">'+esc(q.q)+'</p>'+q.o.map((o,k)=>'<button class="opt" data-k="'+k+'"><span class="dot"></span><span>'+esc(o.t)+'</span></button>').join("");
@@ -94,8 +96,10 @@ function next(){if(i===qs.length-1)finish();else{i++;show()}}
 function finish(){mode="end";const n=qs.length,r=n-wrong.length,p=Math.round(r/n*100);{const o=best[sec+"-"+cur];if(!o||p>o.p){best[sec+"-"+cur]={p,r,n};saveBest()}}$("#bar").classList.add("hide");
 $("#main").innerHTML='<div class="center"><div class="muted">'+(cur+1)+'-qism natijasi</div><div class="big">'+r+' / '+n+'</div><p>'+p+'% to‘g‘ri · '+score+' ball</p></div>'+
 (wrong.length?'<h3>Xato javoblar</h3>'+wrong.map(q=>'<div class="rv">'+esc(q.q)+'<i>✓ '+esc(q.o.find(o=>o.c).t)+'</i></div>').join(""):'<p class="center">Barcha javoblar to‘g‘ri! 🎉</p>')+'<button class="sec" id="ls">Qismlar ro‘yxati</button>';
-$("#ls").onclick=parts;$("#nx").textContent="Qayta boshlash";$("#nx").disabled=false}
+$("#ls").onclick=goBack;$("#nx").textContent="Qayta boshlash";$("#nx").disabled=false}
 $("#nx").onclick=()=>{if(mode==="end")start(cur);else next()};
+try{history.replaceState({l:0},"")}catch(e){canHist=false}
+addEventListener("popstate",e=>{const l=e.state&&e.state.l||0;if(l===0)home();else parts()});
 home();
 </script><script>if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}</script>
 </body></html>
