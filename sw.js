@@ -1,8 +1,12 @@
-const V = 'soliq-test-v5';
+const V = 'soliq-test-v6';
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(V).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
+  e.waitUntil(
+    caches.open(V)
+      .then(c => c.addAll(FILES.map(f => new Request(f, { cache: 'reload' }))))
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener('activate', e => {
@@ -13,17 +17,16 @@ self.addEventListener('activate', e => {
   );
 });
 
-// Avval keshdan ochadi (internetsiz ishlaydi), fonda yangisini yuklab qo‘yadi
+// Internet bo‘lsa — har doim yangisini oladi; bo‘lmasa — keshdan ochadi
 self.addEventListener('fetch', e => {
   const r = e.request;
   if (r.method !== 'GET' || new URL(r.url).origin !== location.origin) return;
   e.respondWith(
-    caches.match(r, { ignoreSearch: true }).then(hit => {
-      const net = fetch(r).then(res => {
+    fetch(r, { cache: 'no-cache' })
+      .then(res => {
         if (res && res.ok) { const copy = res.clone(); caches.open(V).then(c => c.put(r, copy)); }
         return res;
-      }).catch(() => hit || caches.match('index.html'));
-      return hit || net;
-    })
+      })
+      .catch(() => caches.match(r, { ignoreSearch: true }).then(h => h || caches.match('index.html')))
   );
 });

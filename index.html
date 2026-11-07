@@ -76,7 +76,7 @@ let canHist=true;const push=l=>{try{history.pushState({l},"")}catch(e){canHist=f
 const goBack=()=>{if(canHist)history.back();else if(mode==="parts")home();else parts()};
 $("#back").onclick=()=>{if(mode==="home")return;goBack()};
 function home(){clearTimeout(to);mode="home";$("#bar").classList.add("hide");$("#ft").classList.add("hide");$("#ttl").textContent="Soliqlar bo‘yicha testlar";
-$("#main").innerHTML='<h2 style="margin:4px 0 16px">Bo‘limlar</h2>'+SECS.map((s,k)=>'<button class="opt" data-k="'+k+'"><span class="ico">'+s.i+'</span><span>'+esc(s.n)+'<span class="sub">'+s.b.length+' ta test · '+partsOf(s.b).length+' ta qism</span></span></button>').join("");
+$("#main").innerHTML='<h2 style="margin:4px 0 16px">Bo‘limlar <small class="muted" style="font-size:11px;font-weight:400">v6</small></h2>'+SECS.map((s,k)=>'<button class="opt" data-k="'+k+'"><span class="ico">'+s.i+'</span><span>'+esc(s.n)+'<span class="sub">'+s.b.length+' ta test · '+partsOf(s.b).length+' ta qism</span></span></button>').join("");
 document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{sec=+b.dataset.k;parts();push(1)})}
 function parts(){clearTimeout(to);mode="parts";const S=SECS[sec],P=partsOf(S.b);$("#bar").classList.add("hide");$("#ft").classList.add("hide");$("#ttl").textContent=S.n;
 $("#main").innerHTML='<h2 style="margin:4px 0">'+esc(S.n)+'</h2><p class="muted" style="margin:0 0 16px">'+S.b.length+' ta test · '+P.length+' ta qism</p>'+
